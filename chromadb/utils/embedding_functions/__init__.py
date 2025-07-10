@@ -64,7 +64,7 @@ from chromadb.utils.embedding_functions.together_ai_embedding_function import (
 from chromadb.utils.embedding_functions.mistral_embedding_function import (
     MistralEmbeddingFunction,
 )
-from chromadb.utils.embedding_functions.runpod_embeddings_function import (
+from chromadb.utils.embedding_functions.runpod_embedding_function import (
     RunPodEmbeddingFunction,
 )
 
