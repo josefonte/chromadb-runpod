@@ -15,27 +15,29 @@ Get started quickly by deploying an embedding model like `BAAI/bge-large-en-v1.5
 
 ## Using RunPod models with Chroma
 
-### Python
+{% Tabs %}
+
+{% Tab label="python" %}
 
 This embedding function relies on the `runpod` python package, which you can install with `pip install runpod`.
 
 You must set your RunPod API key and provide the endpoint ID of your deployed embedding model.
 
 ```python
-import os
 import chromadb.utils.embedding_functions as embedding_functions
-
-runpod_embedding = embedding_functions.RunPodEmbeddingFunction(
-    api_key=os.environ["RUNPOD_API_KEY"],  # Optional if RUNPOD_API_KEY env var is set
+runpod_ef = embedding_functions.RunPodEmbeddingFunction(
+    api_key="YOUR_API_KEY",
     endpoint_id="your-endpoint-id-here",
     model_name="sentence-transformers/all-MiniLM-L6-v2",
     timeout=300  # Optional, defaults to 300 seconds
 )
 
-embeddings = runpod_embedding(input=["This is my first text to embed", "This is my second document"])
+embeddings = runpod_ef(input=["This is my first text to embed", "This is my second document"])
 ```
 
-### Typescript
+{% /Tab %}
+
+{% Tab label="typescript" %}
 
 This embedding function relies on the `runpod-sdk` package, which you can install with `npm install runpod-sdk`.
 
@@ -43,12 +45,11 @@ This embedding function relies on the `runpod-sdk` package, which you can instal
 import { RunPodEmbeddingFunction } from 'chromadb';
 
 const embeddingFunction = new RunPodEmbeddingFunction({
-  runpod_api_key: process.env.RUNPOD_API_KEY, // Optional if RUNPOD_API_KEY env var is set
-  runpod_endpoint_id: "your-endpoint-id-here",
-  runpod_model_name: "sentence-transformers/all-MiniLM-L6-v2",
-  runpod_timeout: 300 // Optional, defaults to 300 seconds
+    runpod_api_key: "YOUR_API_KEY",
+    runpod_endpoint_id: "your-endpoint-id-here",
+    runpod_model_name: "sentence-transformers/all-MiniLM-L6-v2",
+    runpod_timeout: 300 // Optional, defaults to 300 seconds
 });
-
 
 // use directly
 const embeddings = embeddingFunction.generate(["document1","document2"])
@@ -63,6 +64,10 @@ collection = await client.getCollection({
     embeddingFunction: embeddingFunction
 })
 ```
+
+{% /Tab %}
+
+{% /Tabs %}
 
 ## Configuration
 
