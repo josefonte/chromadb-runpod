@@ -17,6 +17,7 @@ Chroma provides lightweight wrappers around popular embedding providers, making 
 | [Together AI](../../integrations/embedding-models/together-ai)                        | ✓      | ✓          |
 | [Mistral](../../integrations/embedding-models/mistral)                                | ✓      | ✓          |
 | [RunPod](../../integrations/embedding-models/runpod)                                | ✓      | ✓          |
+
 We welcome pull requests to add new Embedding Functions to the community.
 
 ***

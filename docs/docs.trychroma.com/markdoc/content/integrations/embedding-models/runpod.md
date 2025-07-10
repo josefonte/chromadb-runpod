@@ -25,31 +25,43 @@ You must set your RunPod API key and provide the endpoint ID of your deployed em
 import os
 import chromadb.utils.embedding_functions as embedding_functions
 
-runpod_ef = embedding_functions.RunPodEmbeddingFunction(
+runpod_embedding = embedding_functions.RunPodEmbeddingFunction(
     api_key=os.environ["RUNPOD_API_KEY"],  # Optional if RUNPOD_API_KEY env var is set
     endpoint_id="your-endpoint-id-here",
-    model_name="BAAI/bge-large-en-v1.5",
+    model_name="sentence-transformers/all-MiniLM-L6-v2",
     timeout=300  # Optional, defaults to 300 seconds
 )
 
-embeddings = runpod_ef(input=["This is my first text to embed", "This is my second document"])
+embeddings = runpod_embedding(input=["This is my first text to embed", "This is my second document"])
 ```
 
-### JavaScript
+### Typescript
 
 This embedding function relies on the `runpod-sdk` package, which you can install with `npm install runpod-sdk`.
 
-```javascript
+```typescript
 import { RunPodEmbeddingFunction } from 'chromadb';
 
-const runpodEf = new RunPodEmbeddingFunction({
+const embeddingFunction = new RunPodEmbeddingFunction({
   runpod_api_key: process.env.RUNPOD_API_KEY, // Optional if RUNPOD_API_KEY env var is set
   runpod_endpoint_id: "your-endpoint-id-here",
-  runpod_model_name: "BAAI/bge-large-en-v1.5",
+  runpod_model_name: "sentence-transformers/all-MiniLM-L6-v2",
   runpod_timeout: 300 // Optional, defaults to 300 seconds
 });
 
-const embeddings = await runpodEf.generate(["This is my first text to embed", "This is my second document"]);
+
+// use directly
+const embeddings = embeddingFunction.generate(["document1","document2"])
+
+// pass documents to query for .add and .query
+let collection = await client.createCollection({
+    name: "name",
+    embeddingFunction: embeddingFunction
+})
+collection = await client.getCollection({
+    name: "name",
+    embeddingFunction: embeddingFunction
+})
 ```
 
 ## Configuration
