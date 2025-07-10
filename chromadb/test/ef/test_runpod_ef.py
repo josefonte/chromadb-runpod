@@ -5,16 +5,18 @@ from chromadb.utils.embedding_functions.runpod_embedding_function import (
     RunPodEmbeddingFunction,
 )
 
+MODEL_NAME = "insert-model-name-here"
+ENDPOINT_ID ="insert-endpoint-id-here"
 
 def test_runpod_embedding_function_with_api_key() -> None:
     """Test RunPod embedding function when API key is available."""
     if os.environ.get("RUNPOD_API_KEY") is None:
         pytest.skip("RUNPOD_API_KEY not set")
 
-    endpoint_id = os.environ.get("RUNPOD_ENDPOINT_ID", "bezp97l50u0s5b")
+    endpoint_id = os.environ.get("RUNPOD_ENDPOINT_ID", ENDPOINT_ID)
     ef = RunPodEmbeddingFunction(
         endpoint_id=endpoint_id,
-        model_name="PromptlyHealth/mxbai-embed-large-v1__promptly"
+        model_name=MODEL_NAME
     )
     embeddings = ef(["This is a test document"])
     assert len(embeddings) == 1
@@ -58,28 +60,28 @@ def test_runpod_embedding_function_config() -> None:
 
 def test_runpod_embedding_function_build_from_config() -> None:
     """Test creating RunPod embedding function from config."""
-    endpoint_id = os.environ.get("RUNPOD_ENDPOINT_ID", "bezp97l50u0s5b")
+    endpoint_id = os.environ.get("RUNPOD_ENDPOINT_ID", ENDPOINT_ID)
     config: Dict[str, Any] = {
         "api_key_env_var": "RUNPOD_API_KEY",
         "endpoint_id": endpoint_id,
-        "model_name": "PromptlyHealth/mxbai-embed-large-v1__promptly",
+        "model_name": MODEL_NAME,
         "timeout": 240
     }
     
     ef = RunPodEmbeddingFunction.build_from_config(config)
     assert isinstance(ef, RunPodEmbeddingFunction)
     assert ef.endpoint_id == endpoint_id
-    assert ef.model_name == "PromptlyHealth/mxbai-embed-large-v1__promptly"
+    assert ef.model_name == MODEL_NAME
     assert ef.timeout == 240
 
 
 def test_runpod_embedding_function_validate_config() -> None:
     """Test RunPod embedding function config validation."""
-    endpoint_id = os.environ.get("RUNPOD_ENDPOINT_ID", "bezp97l50u0s5b")
+    endpoint_id = os.environ.get("RUNPOD_ENDPOINT_ID", ENDPOINT_ID)
     valid_config: Dict[str, Any] = {
         "api_key_env_var": "RUNPOD_API_KEY",
         "endpoint_id": endpoint_id,
-        "model_name": "PromptlyHealth/mxbai-embed-large-v1__promptly"
+        "model_name": MODEL_NAME
     }
     
     # Should not raise any exception

@@ -24,10 +24,7 @@ export interface RunPodArgs {
 }
 
 interface RunPodAPI {
-  createEmbedding(payload: {
-    model: string;
-    input: string;
-  }): Promise<number[]>;
+  createEmbedding(payload: { model: string; input: string }): Promise<number[]>;
 }
 
 class RunPodAPIImpl implements RunPodAPI {
@@ -37,7 +34,12 @@ class RunPodAPIImpl implements RunPodAPI {
   private runpod: any;
   private timeout: number;
 
-  constructor(apiKey: string, endpointId: string, runpodSdk: any, timeout: number = 300) {
+  constructor(
+    apiKey: string,
+    endpointId: string,
+    runpodSdk: any,
+    timeout: number = 300,
+  ) {
     this.apiKey = apiKey;
     this.endpointId = endpointId;
     this.timeout = timeout;
@@ -81,44 +83,54 @@ class RunPodAPIImpl implements RunPodAPI {
       }
 
       // Handle different status cases
-      if (status === "FAILED" || status === "CANCELLED" || status === "TIMED_OUT") {
+      if (
+        status === "FAILED" ||
+        status === "CANCELLED" ||
+        status === "TIMED_OUT"
+      ) {
         throw new Error(
           `RunPod endpoint failed with status '${status}': ${JSON.stringify(
-            output || response
-          )}`
+            output || response,
+          )}`,
         );
       }
 
       if (status !== "COMPLETED") {
-        throw new Error(
-          `Unexpected status from RunPod endpoint: ${status}`
-        );
+        throw new Error(`Unexpected status from RunPod endpoint: ${status}`);
       }
 
       // Extract embedding from response
       if (output && "data" in output) {
         const data_list = output["data"];
-        if (Array.isArray(data_list) && data_list.length > 0 && "embedding" in data_list[0]) {
+        if (
+          Array.isArray(data_list) &&
+          data_list.length > 0 &&
+          "embedding" in data_list[0]
+        ) {
           return data_list[0]["embedding"];
         } else {
-          throw new Error(`No embedding found in response data: ${JSON.stringify(data_list)}`);
+          throw new Error(
+            `No embedding found in response data: ${JSON.stringify(data_list)}`,
+          );
         }
       } else {
         throw new Error(
-          `Unexpected output format. Expected 'output.data[0].embedding', got: ${JSON.stringify(output)}`
+          `Unexpected output format. Expected 'output.data[0].embedding', got: ${JSON.stringify(output)}`,
         );
       }
     } catch (error: any) {
-      if (error.message.includes("RunPod endpoint failed") || 
-          error.message.includes("Request timed out") ||
-          error.message.includes("Unexpected") ||
-          error.message.includes("No embedding found")) {
+      if (
+        error.message.includes("RunPod endpoint failed") ||
+        error.message.includes("Request timed out") ||
+        error.message.includes("Unexpected") ||
+        error.message.includes("No embedding found")
+      ) {
         throw error;
       }
       throw new Error(
         `RunPod endpoint failed with status '${
           error.status || "unknown"
-        }': ${error.message || JSON.stringify(error)}`
+        }': ${error.message || JSON.stringify(error)}`,
       );
     }
   }
@@ -133,11 +145,11 @@ export class RunPodEmbeddingFunction implements EmbeddingFunction {
   private runpodApi?: RunPodAPI;
 
   constructor(args: RunPodArgs) {
-    const { 
-      endpointId, 
-      modelName, 
-      apiKeyEnvVar = "RUNPOD_API_KEY", 
-      timeout = 300 
+    const {
+      endpointId,
+      modelName,
+      apiKeyEnvVar = "RUNPOD_API_KEY",
+      timeout = 300,
     } = args;
 
     const apiKey = args.apiKey || process.env[apiKeyEnvVar];
@@ -169,14 +181,16 @@ export class RunPodEmbeddingFunction implements EmbeddingFunction {
       const { runpodSdk } = await RunPodEmbeddingFunction.import();
       const apiKey = process.env[this.apiKeyEnvVar];
       if (!apiKey) {
-        throw new Error(`RunPod API key not found in environment variable ${this.apiKeyEnvVar}`);
+        throw new Error(
+          `RunPod API key not found in environment variable ${this.apiKeyEnvVar}`,
+        );
       }
-      
+
       this.runpodApi = new RunPodAPIImpl(
         apiKey,
         this.endpointId,
         runpodSdk,
-        this.timeout
+        this.timeout,
       );
     } catch (e: any) {
       throw new Error(
@@ -189,7 +203,7 @@ export class RunPodEmbeddingFunction implements EmbeddingFunction {
     await this.initializeRunPodAPI();
 
     const embeddings: number[][] = [];
-    
+
     for (const text of texts) {
       const embedding = await this.runpodApi!.createEmbedding({
         model: this.modelName,
@@ -218,11 +232,9 @@ export class RunPodEmbeddingFunction implements EmbeddingFunction {
       return { runpodSdk };
     } catch (e: any) {
       throw new Error(
-        "Please install the runpod-sdk package to use the RunPodEmbeddingFunction, e.g. `npm install runpod-sdk`",
+        `Failed to import runpod-sdk: ${e.message || String(e)}. Please install the runpod-sdk package to use the RunPodEmbeddingFunction, e.g. 'npm install runpod-sdk'`,
       );
     }
-
-    throw new Error(`Failed to import runpod-sdk: ${e.message || String(e)}`);
   }
 
   public static buildFromConfig(config: RunPodConfig): RunPodEmbeddingFunction {
@@ -245,11 +257,11 @@ export class RunPodEmbeddingFunction implements EmbeddingFunction {
 
   public validateConfigUpdate(newConfig: Record<string, any>): void {
     const currentConfig = this.getConfig();
-    
+
     if (currentConfig.model_name !== newConfig.model_name) {
       throw new ChromaValueError("Model name cannot be updated");
     }
-    
+
     if (currentConfig.endpoint_id !== newConfig.endpoint_id) {
       throw new ChromaValueError("Endpoint ID cannot be updated");
     }
@@ -260,4 +272,4 @@ export class RunPodEmbeddingFunction implements EmbeddingFunction {
   }
 }
 
-registerEmbeddingFunction(NAME, RunPodEmbeddingFunction); 
+registerEmbeddingFunction(NAME, RunPodEmbeddingFunction);
