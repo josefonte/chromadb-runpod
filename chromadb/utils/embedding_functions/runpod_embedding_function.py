@@ -131,7 +131,7 @@ class RunPodEmbeddingFunction(EmbeddingFunction[Documents]):
         """Return the supported spaces for this embedding function."""
         return ["cosine", "l2", "ip"]
     
-    @staticmethod
+
     def list_available_models(self) -> List[str]:
         """Return the list of models supported by this embedding endpoint."""
         models = []
